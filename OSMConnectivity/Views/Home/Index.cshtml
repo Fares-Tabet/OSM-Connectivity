@@ -219,7 +219,7 @@
                         '<div id="bodyContent">' +
                         '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection in the motorway network.<br/><br/>' +
                         'For more information and options, ' +
-                        '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
+                        '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '" target="_blank" rel="noopener">' +
                         'click here to open this disconnection on the OSM Official editor </a> ' +
                         '</div></div> ';
                 }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
@@ -245,7 +245,7 @@
                                 '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection between the motorway network ' +
                                 'and the ' + json[i]['waysContainingTheNode'][j]['classification'] + ' road with ID ' + json[i]['waysContainingTheNode'][j]['wayID']+ '<br/><br/>' +
                                 'For more information and options, ' +
-                                '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
+                                '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '" target="_blank" rel="noopener">' +
                                 'click here to open this disconnection on the OSM Official editor </a> ' +
                                 '</div></div> ';
                         }
