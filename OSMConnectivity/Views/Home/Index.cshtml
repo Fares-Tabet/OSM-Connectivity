@@ -1,0 +1,282 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Layer: Polygon</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #legend {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            padding: 10px;
+            margin: 10px;
+            border: 3px solid #000;
+        }
+
+        #floating-side-panel {
+            display: grid;
+            background-color: #fff;
+            left: 0.9%;
+            padding: 5px;
+            position: absolute;
+            top: 70px;
+            z-index: 5;
+            border-radius: 2px;
+            box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 18px;
+            width: auto;
+            height: auto;
+            display: inline;
+            vertical-align: middle;
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="floating-side-panel">
+        <h1 class="title">OSM Connectivity Tool</h1>
+        <button onclick="getMotorwarDisconnections()">Motorway Disconnections</button>
+        <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
+        <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
+        <button onclick="download()">Download Log</button>
+    </div>
+    <div id="map"></div>
+    <div id="legend">
+        <h3>Legend</h3>
+        <img src="~/Content/images/black.png" width="50" height="8"> Primary </img>
+        <br />
+        <img src="~/Content/images/red.png" width="50" height="8"> Trunk </img>
+        <br />
+        <img src="~/Content/images/pin.png" width="45" height="50">       Disconnection </img>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2BmtjwtFmGF_Dh-J8ltarifOtyrRYd7w&callback=initMap"></script>
+    <script type="text/javascript">
+
+        var element = document.getElementById("map");
+
+
+        /*
+        Build list of map types.
+        You can also use var mapTypeIds = ["roadmap", "satellite", "hybrid", "terrain", "OSM"]
+        but static lists suck when Google updates the default list of map types.
+        */
+        var mapTypeIds = [];
+        for (var type in google.maps.MapTypeId) {
+            mapTypeIds.push(google.maps.MapTypeId[type]);
+        }
+        mapTypeIds.push("OSM");
+
+
+        var map = new google.maps.Map(element, {
+            center: new google.maps.LatLng(-33.865143, 151.209900),
+            zoom: 11,
+            mapTypeId: "OSM",
+            mapTypeControlOptions: {
+                mapTypeIds: mapTypeIds
+            }
+        });
+
+
+        map.mapTypes.set("OSM", new google.maps.ImageMapType({
+            getTileUrl: function (coord, zoom) {
+                // See above example if you need smooth wrapping at 180th meridian
+                return "https://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+            },
+            tileSize: new google.maps.Size(256, 256),
+            name: "OpenStreetMap",
+            maxZoom: 18
+        }));
+
+
+        function drawMotorwayGraph() {
+
+            var json = JSON.parse('@Html.Raw(ViewBag.json1)');
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['pnts']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                 data.push({ lat: json[i]['pnts'][j]['Lat'], lng: json[i]['pnts'][j]['Lng'] });
+            }
+
+
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+            strokeColor: '#001F3F',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+
+        }
+
+        function drawTrunkGraph() {
+
+            var json = JSON.parse('@Html.Raw(ViewBag.json2)');
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['pnts']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                 data.push({ lat: json[i]['pnts'][j]['Lat'], lng: json[i]['pnts'][j]['Lng'] });
+            }
+
+
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+                strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+
+            flightPath.setMap(map);
+
+            }
+        }
+
+        function download() {
+            var text = '@Html.Raw(ViewBag.json3)';
+            var filename = "log.txt";
+            //creating an invisible element
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8, '
+                + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            document.body.appendChild(element);
+
+            //onClick property
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        function getMotorwarDisconnections() {
+
+            //retrieve the json that contains the motorwat disconnections
+            var json = JSON.parse('@Html.Raw(ViewBag.json3)');
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                // Add a marker pin of each disconnection on the map
+                var marker = new google.maps.Marker({
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    position: { lat: json[i]['LatLng']['Lat'], lng: json[i]['LatLng']['Lng'] },
+                    clickable: true,
+                    title: json[i]['nodeID']
+                });
+
+
+                var disconnectionInfo = '';
+                var NodeWayCount = json[i]['waysContainingTheNode'].length;
+
+
+                if ((NodeWayCount > 2) || (NodeWayCount == 1))
+                {
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['nodeID'] + '</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection in the motorway network.<br/><br/>' +
+                        'For more information and options, ' +
+                        '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
+                        'click here to open this disconnection on the OSM Official editor </a> ' +
+                        '</div></div> ';
+                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                else
+                {
+                    console.log(NodeWayCount)
+
+                    for (var j = 0; j < NodeWayCount; j++)
+                    {
+
+
+                        //when we find the type of the disconnection, we fill the wayInfo
+                        if (json[i]['waysContainingTheNode'][j]['classification'] != 'Motorway')
+                        {
+
+
+
+                            disconnectionInfo = '<div id="content">' +
+                                '<div id="siteNotice">' +
+                                '</div>' +
+                                '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['nodeID'] + '</h2>' +
+                                '<div id="bodyContent">' +
+                                '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection between the motorway network ' +
+                                'and the ' + json[i]['waysContainingTheNode'][j]['classification'] + ' road with ID ' + json[i]['waysContainingTheNode'][j]['wayID']+ '<br/><br/>' +
+                                'For more information and options, ' +
+                                '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
+                                'click here to open this disconnection on the OSM Official editor </a> ' +
+                                '</div></div> ';
+                        }
+
+                    }
+                }
+
+
+
+                marker.info = new google.maps.InfoWindow({
+                    content: disconnectionInfo
+                });
+
+                //adding the onclick listener event for each marker
+                google.maps.event.addListener(marker, 'click', function () {
+                    var marker_map = this.getMap();
+                    this.info.open(marker_map, this);
+                });
+
+            }
+
+
+        }
+
+
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+
+
+
+    </script>
+
+
+</body>
+</html>

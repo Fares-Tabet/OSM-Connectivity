@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OSMConnectivity", "OSMConnectivity\OSMConnectivity.csproj", "{D738555F-9B1B-4EE9-AAE3-2BB3BCB81B50}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D738555F-9B1B-4EE9-AAE3-2BB3BCB81B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D738555F-9B1B-4EE9-AAE3-2BB3BCB81B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D738555F-9B1B-4EE9-AAE3-2BB3BCB81B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D738555F-9B1B-4EE9-AAE3-2BB3BCB81B50}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {21F23AC9-0615-4120-9167-C0AC1CF22DDD}
+	EndGlobalSection
+EndGlobal
