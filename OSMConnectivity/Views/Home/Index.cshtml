@@ -171,8 +171,9 @@
             }
         }
 
+        var log = ''
         function download() {
-            var text = '@Html.Raw(ViewBag.json3)';
+            var text = log;
             var filename = "log.txt";
             //creating an invisible element
             var element = document.createElement('a');
@@ -222,6 +223,11 @@
                         '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
                         'click here to open this disconnection on the OSM Official editor </a> ' +
                         '</div></div> ';
+
+                    log = log + "Node " + json[i]['nodeID'] + "\nNode " + json[i]['nodeID'] + ' is a disconnection between the motorway network' +
+                        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '\n\n\n';
+
+
                 }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
                 else
                 {
@@ -229,7 +235,6 @@
 
                     for (var j = 0; j < NodeWayCount; j++)
                     {
-
 
                         //when we find the type of the disconnection, we fill the wayInfo
                         if (json[i]['waysContainingTheNode'][j]['classification'] != 'Motorway')
@@ -248,6 +253,10 @@
                                 '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
                                 'click here to open this disconnection on the OSM Official editor </a> ' +
                                 '</div></div> ';
+
+                            log = log + "Node " + json[i]['nodeID'] + ":\nNode " + json[i]['nodeID'] + ' is a disconnection between the motorway network\n' +
+                                'and the ' + json[i]['waysContainingTheNode'][j]['classification'] + ' road with ID ' + json[i]['waysContainingTheNode'][j]['wayID'] +
+                                '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '\n\n\n';
                         }
 
                     }
