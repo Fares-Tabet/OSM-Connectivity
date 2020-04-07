@@ -55,10 +55,10 @@
 <body>
     <div id="floating-side-panel">
         <h1 class="title">OSM Connectivity Tool</h1>
-        <button onclick="getMotorwarDisconnections()">Motorway Disconnections</button>
+        <button onclick="getMotorwarDisconnections(1)">Motorway Disconnections</button>
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
-        <button onclick="download()">Download Log</button>
+        <button onclick="download()">Download Report</button>
     </div>
     <div id="map"></div>
     <div id="legend">
@@ -173,6 +173,7 @@
 
         var log = ''
         function download() {
+            getMotorwarDisconnections(0)
             var text = log;
             var filename = "log.txt";
             //creating an invisible element
@@ -189,7 +190,7 @@
             document.body.removeChild(element);
         }
 
-        function getMotorwarDisconnections() {
+        function getMotorwarDisconnections(flag) {
 
             //retrieve the json that contains the motorwat disconnections
             var json = JSON.parse('@Html.Raw(ViewBag.json3)');
@@ -198,14 +199,15 @@
             for (var i = 0; i < count; i++) {
 
                 // Add a marker pin of each disconnection on the map
-                var marker = new google.maps.Marker({
-                    map: map,
-                    animation: google.maps.Animation.DROP,
-                    position: { lat: json[i]['LatLng']['Lat'], lng: json[i]['LatLng']['Lng'] },
-                    clickable: true,
-                    title: json[i]['nodeID']
-                });
-
+                if (flag == 1) {
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        animation: google.maps.Animation.DROP,
+                        position: { lat: json[i]['LatLng']['Lat'], lng: json[i]['LatLng']['Lng'] },
+                        clickable: true,
+                        title: json[i]['nodeID']
+                    });
+                }
 
                 var disconnectionInfo = '';
                 var NodeWayCount = json[i]['waysContainingTheNode'].length;
@@ -224,7 +226,7 @@
                         'click here to open this disconnection on the OSM Official editor </a> ' +
                         '</div></div> ';
 
-                    log = log + "Node " + json[i]['nodeID'] + "\nNode " + json[i]['nodeID'] + ' is a disconnection between the motorway network' +
+                    log = log + "Node " + json[i]['nodeID'] + ":\nNode " + json[i]['nodeID'] + ' is a disconnection between the motorway network' +
                         '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '\n\n\n';
 
 
@@ -263,16 +265,17 @@
                 }
 
 
+                if (flag == 1) {
+                    marker.info = new google.maps.InfoWindow({
+                        content: disconnectionInfo
+                    });
 
-                marker.info = new google.maps.InfoWindow({
-                    content: disconnectionInfo
-                });
-
-                //adding the onclick listener event for each marker
-                google.maps.event.addListener(marker, 'click', function () {
-                    var marker_map = this.getMap();
-                    this.info.open(marker_map, this);
-                });
+                    //adding the onclick listener event for each marker
+                    google.maps.event.addListener(marker, 'click', function () {
+                        var marker_map = this.getMap();
+                        this.info.open(marker_map, this);
+                    });
+                }
 
             }
 
