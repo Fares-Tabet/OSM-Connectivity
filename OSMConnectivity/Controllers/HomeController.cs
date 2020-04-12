@@ -11,14 +11,15 @@ namespace OSMConnectivity.Controllers
        
         public ActionResult Index()
         {
-           
-            ViewBag.json1 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/wayDetails.json")));
 
-            ViewBag.json2 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/trunk.json")));
+            //ViewBag.json1 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/wayDetails.json")));
+            ViewBag.json1 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorway.json")));
 
-            ViewBag.json3 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnected.json")));
+            ViewBag.json2 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/trunk .json")));
 
-            return View();
+            ViewBag.json3 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorwayDisconnections.json")));
+
+            return View(); 
 
         }
 
