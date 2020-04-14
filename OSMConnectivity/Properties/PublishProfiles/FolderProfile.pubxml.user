@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>C:\Users\Fares\source\repos\OSMConnectivity\OSMConnectivity\bin\Release\Publish</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\Fares\Documents\GitHub\OSM-Connectivity\OSMConnectivity\bin\Release\Publish</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -25,10 +25,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/18/2018 00:44:54</publishTime>
     </File>
     <File Include="bin/OSMConnectivity.dll">
-      <publishTime>04/05/2020 16:42:24</publishTime>
+      <publishTime>04/13/2020 17:38:37</publishTime>
     </File>
     <File Include="bin/OSMConnectivity.pdb">
-      <publishTime>04/05/2020 16:42:24</publishTime>
+      <publishTime>04/13/2020 17:38:37</publishTime>
     </File>
     <File Include="bin/roslyn/csc.exe">
       <publishTime>05/24/2018 05:38:22</publishTime>
@@ -228,6 +228,15 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Content/json_files/disconnected.json">
       <publishTime>04/05/2020 16:37:28</publishTime>
     </File>
+    <File Include="Content/json_files/motorway.json">
+      <publishTime>04/13/2020 17:31:51</publishTime>
+    </File>
+    <File Include="Content/json_files/motorwayDisconnections.json">
+      <publishTime>04/13/2020 17:31:51</publishTime>
+    </File>
+    <File Include="Content/json_files/trunk .json">
+      <publishTime>04/13/2020 17:31:51</publishTime>
+    </File>
     <File Include="Content/json_files/trunk.json">
       <publishTime>04/05/2020 16:37:23</publishTime>
     </File>
@@ -298,7 +307,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/05/2020 15:29:38</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
-      <publishTime>04/05/2020 16:17:56</publishTime>
+      <publishTime>04/13/2020 17:35:35</publishTime>
     </File>
     <File Include="Views/Shared/Error.cshtml">
       <publishTime>04/05/2020 15:29:29</publishTime>
@@ -313,7 +322,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/05/2020 15:29:29</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>04/05/2020 16:42:25</publishTime>
+      <publishTime>04/13/2020 17:38:38</publishTime>
     </File>
   </ItemGroup>
 </Project>

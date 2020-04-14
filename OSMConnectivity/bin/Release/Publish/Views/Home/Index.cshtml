@@ -9,6 +9,7 @@
     <meta charset="utf-8">
     <style>
 
+
         /* Always set the map height explicitly to define the size of the div
         * element that contains the map. */
         #map {
@@ -55,15 +56,15 @@
 <body>
     <div id="floating-side-panel">
         <h1 class="title">OSM Connectivity Tool</h1>
-        <button onclick="getMotorwarDisconnections()">Motorway Disconnections</button>
+        <button onclick="getMotorwarDisconnections(1)">Motorway Disconnections</button>
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
-        <button onclick="download()">Download Log</button>
+        <button onclick="download()">Download Report</button>
     </div>
     <div id="map"></div>
     <div id="legend">
         <h3>Legend</h3>
-        <img src="~/Content/images/black.png" width="50" height="8"> Primary </img>
+        <img src="~/Content/images/black.png" width="50" height="8"> Motorway </img>
         <br />
         <img src="~/Content/images/red.png" width="50" height="8"> Trunk </img>
         <br />
@@ -117,12 +118,12 @@
 
             for (var i = 0; i < count; i++) {
                 var data = [];
-                var ptsCount = Object.keys(json[i]['pnts']).length;
+                var ptsCount = Object.keys(json[i]['nodes']).length;
 
 
             for (var j = 0; j < ptsCount; j++)
             {
-                 data.push({ lat: json[i]['pnts'][j]['Lat'], lng: json[i]['pnts'][j]['Lng'] });
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
 
 
@@ -148,12 +149,12 @@
 
             for (var i = 0; i < count; i++) {
                 var data = [];
-                var ptsCount = Object.keys(json[i]['pnts']).length;
+                var ptsCount = Object.keys(json[i]['nodes']).length;
 
 
             for (var j = 0; j < ptsCount; j++)
             {
-                 data.push({ lat: json[i]['pnts'][j]['Lat'], lng: json[i]['pnts'][j]['Lng'] });
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
 
 
@@ -171,8 +172,10 @@
             }
         }
 
+        var log = ''
         function download() {
-            var text = '@Html.Raw(ViewBag.json3)';
+            getMotorwarDisconnections(0)
+            var text = log;
             var filename = "log.txt";
             //creating an invisible element
             var element = document.createElement('a');
@@ -188,7 +191,7 @@
             document.body.removeChild(element);
         }
 
-        function getMotorwarDisconnections() {
+        function getMotorwarDisconnections(flag) {
 
             //retrieve the json that contains the motorwat disconnections
             var json = JSON.parse('@Html.Raw(ViewBag.json3)');
@@ -197,73 +200,96 @@
             for (var i = 0; i < count; i++) {
 
                 // Add a marker pin of each disconnection on the map
-                var marker = new google.maps.Marker({
-                    map: map,
-                    animation: google.maps.Animation.DROP,
-                    position: { lat: json[i]['LatLng']['Lat'], lng: json[i]['LatLng']['Lng'] },
-                    clickable: true,
-                    title: json[i]['nodeID']
-                });
+                if (flag == 1) {
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        animation: google.maps.Animation.DROP,
 
+                        position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
+                        clickable: true,
+                        title: json[i]['Id']
 
-                var disconnectionInfo = '';
-                var NodeWayCount = json[i]['waysContainingTheNode'].length;
-
-
-                if ((NodeWayCount > 2) || (NodeWayCount == 1))
-                {
-                    disconnectionInfo = '<div id="content">' +
-                        '<div id="siteNotice">' +
-                        '</div>' +
-                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['nodeID'] + '</h2>' +
-                        '<div id="bodyContent">' +
-                        '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection in the motorway network.<br/><br/>' +
-                        'For more information and options, ' +
-                        '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
-                        'click here to open this disconnection on the OSM Official editor </a> ' +
-                        '</div></div> ';
-                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
-                else
-                {
-                    console.log(NodeWayCount)
-
-                    for (var j = 0; j < NodeWayCount; j++)
-                    {
-
-
-                        //when we find the type of the disconnection, we fill the wayInfo
-                        if (json[i]['waysContainingTheNode'][j]['classification'] != 'Motorway')
-                        {
-
-
-
-                            disconnectionInfo = '<div id="content">' +
-                                '<div id="siteNotice">' +
-                                '</div>' +
-                                '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['nodeID'] + '</h2>' +
-                                '<div id="bodyContent">' +
-                                '<p style="width:250px"><b>Node ' + json[i]['nodeID'] + '</b> is a disconnection between the motorway network ' +
-                                'and the ' + json[i]['waysContainingTheNode'][j]['classification'] + ' road with ID ' + json[i]['waysContainingTheNode'][j]['wayID']+ '<br/><br/>' +
-                                'For more information and options, ' +
-                                '<a href="https://www.openstreetmap.org/node/' + json[i]['nodeID'] + '  target="_blank">' +
-                                'click here to open this disconnection on the OSM Official editor </a> ' +
-                                '</div></div> ';
-                        }
-
-                    }
+                    });
                 }
 
 
+                var disconnectionInfo = '';
+                var NodeWayCount = json[i]['roads'].length;
 
-                marker.info = new google.maps.InfoWindow({
-                    content: disconnectionInfo
-                });
 
-                //adding the onclick listener event for each marker
-                google.maps.event.addListener(marker, 'click', function () {
-                    var marker_map = this.getMap();
-                    this.info.open(marker_map, this);
-                });
+
+                var motorwayString = '';
+                var disconnectedWaysString = '';
+
+                for (var j = 0; j < NodeWayCount; j++)
+                {
+
+                    if (json[i]['roads'][j]['roadClass'] != 'motorway' && json[i]['roads'][j]['roadClass'] != 'motorway_link')
+                    {
+                        disconnectedWaysString += json[i]['roads'][j]['Id'] + '(' + json[i]['roads'][j]['roadClass'] + '), ';
+                    }
+                    else
+                    {
+                        motorwayString += json[i]['roads'][j]['Id'] + ', ';
+                    }
+
+
+
+                }
+
+                motorwayString = motorwayString.slice(0, -2);
+
+                if (NodeWayCount == 1) {
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['Id'] + '</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><b>Node ' + json[i]['Id'] + '</b> is a disconnection in motorway: ' + motorwayString +
+                        '<br/><br/>' +
+                        'For more information and options, ' +
+                        '<a href="https://www.openstreetmap.org/node/' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'click here to open this disconnection on the OSM Official editor </a> ' +
+                        '</div></div> ';
+
+                    log = log +"Node " + json[i]['Id'] + "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+
+
+                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                else
+
+                {
+                    disconnectedWaysString = disconnectedWaysString.slice(0, -2);
+
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['Id'] + '</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><b>Node ' + json[i]['Id'] + '</b> is a disconnection between <br/> Motorways: ' + motorwayString +
+                        '<br/> and Ways: ' + disconnectedWaysString + '<br/><br/>' +
+                        'For more information and options, ' +
+                        '<a href="https://www.openstreetmap.org/node/' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'click here to open this disconnection on the OSM Official editor </a> ' +
+                        '</div></div> ';
+
+                    log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                        '\nand Ways: ' + disconnectedWaysString +
+                        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+                }
+
+                if (flag == 1) {
+                    marker.info = new google.maps.InfoWindow({
+                        content: disconnectionInfo
+                    });
+
+                    //adding the onclick listener event for each marker
+                    google.maps.event.addListener(marker, 'click', function () {
+                        var marker_map = this.getMap();
+                        this.info.open(marker_map, this);
+                    });
+                }
 
             }
 
