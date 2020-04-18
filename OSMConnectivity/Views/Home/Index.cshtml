@@ -90,8 +90,8 @@
 
 
         var map = new google.maps.Map(element, {
-            center: new google.maps.LatLng(-33.865143, 151.209900),
-            zoom: 11,
+            center: new google.maps.LatLng(-41.270634, 173.283966),
+            zoom: 6,
             mapTypeId: "OSM",
             mapTypeControlOptions: {
                 mapTypeIds: mapTypeIds
@@ -112,7 +112,8 @@
 
         function drawMotorwayGraph() {
 
-            var json = JSON.parse('@Html.Raw(ViewBag.json1)');
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.motorways));
             var count = Object.keys(json).length;
 
 
@@ -143,9 +144,11 @@
 
         function drawTrunkGraph() {
 
-            var json = JSON.parse('@Html.Raw(ViewBag.json2)');
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.trunks));
             var count = Object.keys(json).length;
 
+            
 
             for (var i = 0; i < count; i++) {
                 var data = [];
@@ -194,7 +197,7 @@
         function getMotorwarDisconnections(flag) {
 
             //retrieve the json that contains the motorwat disconnections
-            var json = JSON.parse('@Html.Raw(ViewBag.json3)');
+            var json = JSON.parse('@Html.Raw(ViewBag.disconnections)');
             var count = Object.keys(json).length;
 
             for (var i = 0; i < count; i++) {
