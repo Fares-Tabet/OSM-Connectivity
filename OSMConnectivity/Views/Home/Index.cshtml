@@ -86,7 +86,7 @@
         <br />
         <img src="~/Content/images/red.png" width="50" height="8"> Trunk </img>
         <br />
-        <img src="~/Content/images/pin.png" width="45" height="50">       Disconnection </img>
+        <img src="~/Content/images/pin.png" width="45" height="50"> Incompatible Connection </img>
     </div>
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2BmtjwtFmGF_Dh-J8ltarifOtyrRYd7w&callback=initMap"></script>
@@ -274,9 +274,9 @@
                         '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
                         '<div id="bodyContent">' +
                         '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
-                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects <a href="https://www.openstreetmap.org/way/' +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a <a href="https://www.openstreetmap.org/way/' +
                         motorwayString +
-                        '" target="_blank" rel="noopener">motorway: ' + motorwayString +'</a> with another incompatible road type<br/><br/>' +
+                        '" target="_blank" rel="noopener">motorway ( ' + motorwayString +')</a> with another incompatible road type<br/><br/>' +
 
                         '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
                         'Open in OSM iD </a>'+
@@ -298,8 +298,8 @@
                         '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
                         '<div id="bodyContent">' +
                         '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
-                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects  motorway: ' + motorwayString +
-                        '<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a motorway (' + motorwayString +
+                        ')<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
 
                         '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
                         'Open in OSM iD </a>' +
