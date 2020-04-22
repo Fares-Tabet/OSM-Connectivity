@@ -10,6 +10,7 @@
     <style>
 
 
+
         /* Always set the map height explicitly to define the size of the div
         * element that contains the map. */
         #map {
@@ -42,6 +43,20 @@
             box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.1);
         }
 
+        #floating-top-panel {
+            position: absolute;
+            top: 10px;
+            left: 25%;
+            z-index: 5;
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #999;
+            text-align: center;
+            font-family: 'Roboto','sans-serif';
+            line-height: 30px;
+            padding-left: 10px;
+        }
+
         .title {
             font-size: 18px;
             width: auto;
@@ -54,9 +69,12 @@
     </style>
 </head>
 <body>
+    <div id="floating-top-panel">
+        <input onclick="hideShowIncorrectConnections();" type=button value="Hide/Show Incorrect Connections">
+    </div>
     <div id="floating-side-panel">
         <h1 class="title">OSM Connectivity Tool</h1>
-        <button onclick="getMotorwarDisconnections(1)">Motorway Disconnections</button>
+        <button onclick="highlightIncorrectConnections(1)">Incorrect Connections</button>
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
         <button onclick="download()">Download Report</button>
@@ -73,6 +91,9 @@
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2BmtjwtFmGF_Dh-J8ltarifOtyrRYd7w&callback=initMap"></script>
     <script type="text/javascript">
+
+        //Global variables:
+        var incorectMarkersArray = [];
 
         var element = document.getElementById("map");
 
@@ -148,7 +169,7 @@
             var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.trunks));
             var count = Object.keys(json).length;
 
-            
+
 
             for (var i = 0; i < count; i++) {
                 var data = [];
@@ -194,9 +215,12 @@
             document.body.removeChild(element);
         }
 
-        function getMotorwarDisconnections(flag) {
+        function highlightIncorrectConnections(flag) {
 
-            //retrieve the json that contains the motorwat disconnections
+            //clear the global variable array in case button is clicked again
+            incorectMarkersArray.splice(0, incorectMarkersArray.length)
+
+            //retrieve the json that contains the motorway disconnections
             var json = JSON.parse('@Html.Raw(ViewBag.disconnections)');
             var count = Object.keys(json).length;
 
@@ -206,6 +230,7 @@
                 if (flag == 1) {
                     var marker = new google.maps.Marker({
                         map: map,
+                        //icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                         animation: google.maps.Animation.DROP,
 
                         position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
@@ -229,7 +254,7 @@
 
                     if (json[i]['roads'][j]['roadClass'] != 'motorway' && json[i]['roads'][j]['roadClass'] != 'motorway_link')
                     {
-                        disconnectedWaysString += json[i]['roads'][j]['Id'] + '(' + json[i]['roads'][j]['roadClass'] + '), ';
+                        disconnectedWaysString += json[i]['roads'][j]['roadClass'] + ' (' + json[i]['roads'][j]['Id'] + '), ';
                     }
                     else
                     {
@@ -246,13 +271,15 @@
                     disconnectionInfo = '<div id="content">' +
                         '<div id="siteNotice">' +
                         '</div>' +
-                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['Id'] + '</h2>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
                         '<div id="bodyContent">' +
-                        '<p style="width:250px"><b>Node ' + json[i]['Id'] + '</b> is a disconnection in motorway: ' + motorwayString +
-                        '<br/><br/>' +
-                        'For more information and options, ' +
-                        '<a href="https://www.openstreetmap.org/node/' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
-                        'click here to open this disconnection on the OSM Official editor </a> ' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects <a href="https://www.openstreetmap.org/way/' +
+                        motorwayString +
+                        '" target="_blank" rel="noopener">motorway: ' + motorwayString +'</a> with another incompatible road type<br/><br/>' +
+
+                        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'Open in OSM iD </a>'+
                         '</div></div> ';
 
                     log = log +"Node " + json[i]['Id'] + "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
@@ -268,13 +295,14 @@
                     disconnectionInfo = '<div id="content">' +
                         '<div id="siteNotice">' +
                         '</div>' +
-                        '<h2 id="firstHeading" class="firstHeading">Node ' + json[i]['Id'] + '</h2>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
                         '<div id="bodyContent">' +
-                        '<p style="width:250px"><b>Node ' + json[i]['Id'] + '</b> is a disconnection between <br/> Motorways: ' + motorwayString +
-                        '<br/> and Ways: ' + disconnectedWaysString + '<br/><br/>' +
-                        'For more information and options, ' +
-                        '<a href="https://www.openstreetmap.org/node/' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
-                        'click here to open this disconnection on the OSM Official editor </a> ' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects  motorway: ' + motorwayString +
+                        '<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
+
+                        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'Open in OSM iD </a>' +
                         '</div></div> ';
 
                     log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
@@ -294,11 +322,36 @@
                     });
                 }
 
+
+                //add the markers to global variable incorectMarkersArray
+                incorectMarkersArray.push(marker);
             }
 
 
         }
 
+        function hideShowIncorrectConnections()
+        {
+            //if markers have already been created
+            if (incorectMarkersArray.length > 0)
+            {
+                //if the markers are showing, hide them
+                if (incorectMarkersArray[0].getVisible() == true)
+                {
+                    for (i = 0; i < incorectMarkersArray.length; i++) {
+                        incorectMarkersArray[i].setVisible(false);
+                    }
+                 //if the markers are hidden, show them
+                } else
+                {
+                    for (i = 0; i < incorectMarkersArray.length; i++) {
+                        incorectMarkersArray[i].setVisible(true);
+                    }
+                }
+            }
+
+
+        }
 
         map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
 

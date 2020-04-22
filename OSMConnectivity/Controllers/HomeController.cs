@@ -20,14 +20,9 @@ namespace OSMConnectivity.Controllers
 
             var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorway_NZ.json"))));
 
-            //var disconnections = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
-
             ViewBag.trunks = trunks;
-            ViewBag.motorways = motorways;
-            
-            //ViewBag.json1 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorway_NZ_partial.json")));
 
-            //ViewBag.json2 = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/trunk .json")));
+            ViewBag.motorways = motorways;
 
             ViewBag.disconnections = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")));
 
