@@ -20,14 +20,22 @@ namespace OSMConnectivity.Controllers
 
             var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorway_NZ.json"))));
 
+            var maxSubGraph = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/MaxSubtree.json"))));
+
+            var disjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/DisjointedSubTreeWays.json"))));
+
             ViewBag.trunks = trunks;
 
             ViewBag.motorways = motorways;
 
+            ViewBag.disjointedSubTreeWays = disjointedSubTreeWays;
+
+            ViewBag.maxSubGraph = maxSubGraph;
+
             ViewBag.disconnections = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")));
 
 
-            return View(); 
+            return View();
 
         }
 

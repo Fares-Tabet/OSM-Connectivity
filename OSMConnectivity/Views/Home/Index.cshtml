@@ -11,6 +11,7 @@
 
 
 
+
         /* Always set the map height explicitly to define the size of the div
         * element that contains the map. */
         #map {
@@ -77,6 +78,8 @@
         <button onclick="highlightIncorrectConnections(1)">Incorrect Connections</button>
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
+        <button onclick="drawDisconnections()">Disconnections</button>
+        <button onclick="drawMaxSubTreeGraph()">Draw MaxSubTree Graph</button>
         <button onclick="download()">Download Report</button>
     </div>
     <div id="map"></div>
@@ -154,6 +157,70 @@
             path: data,
             geodesic: true,
             strokeColor: '#001F3F',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+
+        }
+
+        function drawMaxSubTreeGraph() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.maxSubGraph));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+            }
+
+
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+            strokeColor: '#001F3F',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+
+        }
+
+        function drawDisconnections() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.disjointedSubTreeWays));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+            }
+
+
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+                strokeColor: json[i]['colorCode'],
             strokeOpacity: 1.0,
             strokeWeight: 2
              });

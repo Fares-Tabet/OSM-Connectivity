@@ -14,6 +14,7 @@ namespace OSMConnectivity.Models
         public string name { get; set; }
         public Node startNode { get; set; }
         public Node endNode { get; set; }
+        public string colorCode { get; set; }
         public List<Node> nodes { get; set; }
     }
 }
