@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Web.Services;
 
 namespace OSMConnectivity.Controllers
 {
@@ -38,6 +39,14 @@ namespace OSMConnectivity.Controllers
             return View();
 
         }
+
+        [HttpPost]
+        public ActionResult test()
+        {
+            Console.WriteLine("a");
+            return null;
+        }
+
 
 
     }

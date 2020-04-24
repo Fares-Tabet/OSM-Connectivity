@@ -96,7 +96,9 @@
     <script type="text/javascript">
 
         //Global variables:
-        var incorectMarkersArray = [];
+        var markerGroups = {
+            "incorectMarkersArray": []
+        };
 
         var element = document.getElementById("map");
 
@@ -285,7 +287,7 @@
         function highlightIncorrectConnections(flag) {
 
             //clear the global variable array in case button is clicked again
-            incorectMarkersArray.splice(0, incorectMarkersArray.length)
+            markerGroups['incorectMarkersArray'].splice(0, markerGroups['incorectMarkersArray'].length)
 
             //retrieve the json that contains the motorway disconnections
             var json = JSON.parse('@Html.Raw(ViewBag.disconnections)');
@@ -346,7 +348,7 @@
                         '" target="_blank" rel="noopener">motorway ( ' + motorwayString +')</a> with another incompatible road type<br/><br/>' +
 
                         '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
-                        'Open in OSM iD </a>'+
+                        'Open in OSM iD </a><br/> <button id="whitelistButton" onclick = addToWhitelist(json[i])> Whitelist </button>'+
                         '</div></div> ';
 
                     log = log +"Node " + json[i]['Id'] + "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
@@ -369,7 +371,7 @@
                         ')<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
 
                         '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
-                        'Open in OSM iD </a>' +
+                        'Open in OSM iD </a><br/> <button id="whitelistButton" onclick = addToWhitelist(json[i]['Id'])> Whitelist </button>' +
                         '</div></div> ';
 
                     log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
@@ -391,7 +393,7 @@
 
 
                 //add the markers to global variable incorectMarkersArray
-                incorectMarkersArray.push(marker);
+                markerGroups['incorectMarkersArray'].push(marker);
             }
 
 
@@ -399,26 +401,49 @@
 
         function hideShowIncorrectConnections()
         {
-            //if markers have already been created
-            if (incorectMarkersArray.length > 0)
+
+            if (markerGroups['incorectMarkersArray'].length > 0)
             {
                 //if the markers are showing, hide them
-                if (incorectMarkersArray[0].getVisible() == true)
+                if (markerGroups['incorectMarkersArray'][0].getVisible() == true)
                 {
-                    for (i = 0; i < incorectMarkersArray.length; i++) {
-                        incorectMarkersArray[i].setVisible(false);
+                    for (i = 0; i < markerGroups['incorectMarkersArray'].length; i++) {
+                        markerGroups['incorectMarkersArray'][i].setVisible(false);
                     }
-                 //if the markers are hidden, show them
+
                 } else
                 {
-                    for (i = 0; i < incorectMarkersArray.length; i++) {
-                        incorectMarkersArray[i].setVisible(true);
+                    for (i = 0; i < markerGroups['incorectMarkersArray'].length; i++) {
+                        markerGroups['incorectMarkersArray'][i].setVisible(true);
                     }
                 }
             }
 
 
         }
+
+        function addToWhitelist(node)
+        {
+            console.log('clicked');
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("test")',
+                contentType: "application/json; charset=utf-8",
+                data: {},
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d) {
+                        $("#errorDiv").html(msg.d);
+                    }
+                },
+                error: function (req, status, error) {
+                    alert("Error try again");
+                }
+            });
+        }
+
+
 
         map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
 
