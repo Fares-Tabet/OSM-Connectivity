@@ -11,11 +11,16 @@ namespace OSMConnectivity.Controllers
 {
     public class HomeController : Controller
     {
-       
+        JavaScriptSerializer ser = new JavaScriptSerializer() { MaxJsonLength = 86753090 };
+
+        public List<IncorrectConnectionNode> incorrectConnectionNodes;
+
+        public List<IncorrectConnectionNode> whitelistNodes;
+
         public ActionResult Index()
         {
 
-            JavaScriptSerializer ser = new JavaScriptSerializer() { MaxJsonLength = 86753090 };
+            
 
             var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/trunk_NZ.json"))));
 
@@ -25,6 +30,8 @@ namespace OSMConnectivity.Controllers
 
             var disjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/DisjointedSubTreeWays.json"))));
 
+            incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+
             ViewBag.trunks = trunks;
 
             ViewBag.motorways = motorways;
@@ -33,18 +40,52 @@ namespace OSMConnectivity.Controllers
 
             ViewBag.maxSubGraph = maxSubGraph;
 
-            ViewBag.disconnections = System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")));
+            ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
+
+
+            
 
 
             return View();
 
         }
 
-        public string addToWhitelist(string name)
-        {
-            string returnMsg = "Node " + name+ " has been whitelisted";
-            return returnMsg;
-        }
+        //public ActionResult addToWhitelist(string id)
+        //{
+        //    string returnMsg = "Node " + id + " has been whitelisted";
+
+
+        //    incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+
+        //    string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
+        //    if (System.IO.File.Exists(whitelistNodeFile))
+        //    {
+        //        whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
+        //    }
+        //    else
+        //    {
+        //        whitelistNodes = new List<IncorrectConnectionNode>();
+        //    }
+
+        //    //IncorrectConnectionNode whitelistedNode;
+
+        //    foreach (IncorrectConnectionNode node in incorrectConnectionNodes)
+        //    {
+        //        if(node.Id.Equals(id))
+        //        {
+        //            whitelistNodes.Add(node);
+        //            incorrectConnectionNodes.Remove(node);
+        //            break;
+        //        }
+        //    }
+
+        //    ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
+        //    //ViewBag.whitelistNodes = whitelistNodes;
+
+        //    return View();
+        //}
+
+       
 
     }
 }

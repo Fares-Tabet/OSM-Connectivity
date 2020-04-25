@@ -294,8 +294,10 @@
             //clear the global variable array in case button is clicked again
             markerGroups['incorrectMarkersDictionary'].clear();
 
-            //retrieve the json that contains the motorway disconnections
-            var json = JSON.parse('@Html.Raw(ViewBag.disconnections)');
+            //retrieve the json that contains the motorway incorrect connection
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.incorrectConnectionNodes));
+  
             var count = Object.keys(json).length;
 
             for (var i = 0; i < count; i++) {
@@ -428,7 +430,7 @@
         function addToWhitelist(id)
         {
             //call controller function
-            $.get("/Home/addToWhitelist",{name:id}, function (data) {  
+            $.get("/Home/addToWhitelist",{id:id}, function (data) {  
                 alert(data);
             }); 
 
@@ -437,6 +439,7 @@
            //create whitelist node
             var whitelistMarker = new google.maps.Marker({
                         map: map,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',                  
                         icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',                  
                         position: markerGroups['incorrectMarkersDictionary'].get(''+id).position ,
                 clickable: true,
