@@ -40,14 +40,11 @@ namespace OSMConnectivity.Controllers
 
         }
 
-        [HttpPost]
-        public ActionResult test()
+        public string addToWhitelist(string name)
         {
-            Console.WriteLine("a");
-            return null;
+            string returnMsg = "Node " + name+ " has been whitelisted";
+            return returnMsg;
         }
-
-
 
     }
 }
