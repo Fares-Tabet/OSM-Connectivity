@@ -14,3 +14,10 @@ OSMConnectivity/obj/Debug/OSMConnectivity.csproj.FileListAbsolute.txt
 OSMConnectivity/bin/OSMConnectivity.pdb
 OSMConnectivity/bin/OSMConnectivity.dll
 
+*.dll
+*.pdb
+*.exe
+*.targets
+*.rsp
+*.config
+*.xml

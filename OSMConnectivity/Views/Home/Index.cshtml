@@ -10,8 +10,6 @@
     <style>
 
 
-
-
         /* Always set the map height explicitly to define the size of the div
         * element that contains the map. */
         #map {
@@ -72,6 +70,7 @@
 <body>
     <div id="floating-top-panel">
         <input onclick="hideShowIncorrectConnections();" type=button value="Hide/Show Incorrect Connections">
+        <input onclick="hideShowWhitelistNodes();" type=button value="Hide/Show Whitelisted Nodes">
     </div>
     <div id="floating-side-panel">
         <h1 class="title">OSM Connectivity Tool</h1>
@@ -81,7 +80,6 @@
         <button onclick="drawDisconnections()">Disconnections</button>
         <button onclick="drawMaxSubTreeGraph()">Draw MaxSubTree Graph</button>
         <button onclick="download()">Download Report</button>
-        <button onclick="showWhitelistNodes()">Whitelisted Nodes</button>
     </div>
     <div id="map"></div>
     <div id="legend">
@@ -91,9 +89,12 @@
         <img src="~/Content/images/red.png" width="50" height="8"> Trunk </img>
         <br />
         <img src="~/Content/images/pin.png" width="45" height="50"> Incompatible Connection </img>
+        <br />
+        <img src="~/Content/images/blue-pin.png" width="45" height="50"> Whitelist Nodes </img>
     </div>
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2BmtjwtFmGF_Dh-J8ltarifOtyrRYd7w&callback=initMap"></script>
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
     <script type="text/javascript">
 
         //Global variables:
@@ -139,6 +140,8 @@
             maxZoom: 18
         }));
 
+        loadWhiteListMarkers();
+
 
         function drawMotorwayGraph() {
 
@@ -156,8 +159,6 @@
             {
                 data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
-
-
 
             var flightPath = new google.maps.Polyline({
             path: data,
@@ -189,8 +190,6 @@
                 data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
 
-
-
             var flightPath = new google.maps.Polyline({
             path: data,
             geodesic: true,
@@ -201,7 +200,6 @@
 
             flightPath.setMap(map);
             }
-
         }
 
         function drawDisconnections() {
@@ -220,8 +218,6 @@
             {
                 data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
-
-
 
             var flightPath = new google.maps.Polyline({
             path: data,
@@ -242,8 +238,6 @@
             var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.trunks));
             var count = Object.keys(json).length;
 
-
-
             for (var i = 0; i < count; i++) {
                 var data = [];
                 var ptsCount = Object.keys(json[i]['nodes']).length;
@@ -253,8 +247,6 @@
             {
                 data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
             }
-
-
 
             var flightPath = new google.maps.Polyline({
             path: data,
@@ -288,16 +280,24 @@
             document.body.removeChild(element);
         }
 
-        
+
         function highlightIncorrectConnections(flag) {
 
-            //clear the global variable array in case button is clicked again
-            markerGroups['incorrectMarkersDictionary'].clear();
+            var json;
 
-            //retrieve the json that contains the motorway incorrect connection
-            @using Newtonsoft.Json;
-            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.incorrectConnectionNodes));
-  
+            $.ajax({
+                url: "Home/getIncorrectConnectionsData",
+                method: "GET",
+                success: function (data) {
+                    data = JSON.parse(data);
+                    json = data;
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                async:false
+            });
+
             var count = Object.keys(json).length;
 
             for (var i = 0; i < count; i++) {
@@ -316,10 +316,8 @@
                     });
                 }
 
-
                 var disconnectionInfo = '';
                 var NodeWayCount = json[i]['roads'].length;
-
 
 
                 var motorwayString = '';
@@ -336,9 +334,6 @@
                     {
                         motorwayString += json[i]['roads'][j]['Id'] + ', ';
                     }
-
-
-
                 }
 
                 motorwayString = motorwayString.slice(0, -2);
@@ -367,7 +362,7 @@
 
                 {
                     disconnectedWaysString = disconnectedWaysString.slice(0, -2);
-                    
+
                     disconnectionInfo = '<div id="content">' +
                         '<div id="siteNotice">' +
                         '</div>' +
@@ -380,7 +375,7 @@
                         '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
                         'Open in OSM iD </a><br/><br/><button onclick = addToWhitelist('+json[i]['Id']+')> Whitelist </button>' +
                         '</div></div> ';
-                    
+
                     log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
                         '\nand Ways: ' + disconnectedWaysString +
                         '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
@@ -398,11 +393,9 @@
                     });
                 }
 
-
                 //add the markers to global variable incorrectMarkersDictionary
                 markerGroups['incorrectMarkersDictionary'].set(json[i]['Id'],marker);
             }
-
 
         }
 
@@ -423,24 +416,121 @@
                 }
             }
 
+        }
 
+
+        function loadWhiteListMarkers() {
+
+            var json;
+
+            $.ajax({
+                url: "Home/getWhiteListData",
+                method: "GET",
+                success: function (data) {
+                    data = JSON.parse(data);
+                    json = data;
+
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                async:false
+
+            });
+
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                // Add a marker pin of each disconnection on the map
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    animation: google.maps.Animation.DROP,
+
+                    position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
+                    clickable: true,
+                    title: json[i]['Id']
+
+                });
+
+                marker.setVisible(false);
+
+                var NodeWayCount = json[i]['roads'].length;
+
+                var motorwayString = '';
+                var disconnectedWaysString = '';
+
+                for (var j = 0; j < NodeWayCount; j++) {
+
+                    if (json[i]['roads'][j]['roadClass'] != 'motorway' && json[i]['roads'][j]['roadClass'] != 'motorway_link') {
+                        disconnectedWaysString += json[i]['roads'][j]['roadClass'] + ' (' + json[i]['roads'][j]['Id'] + '), ';
+                    }
+                    else {
+                        motorwayString += json[i]['roads'][j]['Id'] + ', ';
+                    }
+                }
+
+                motorwayString = motorwayString.slice(0, -2);
+
+                if (NodeWayCount == 1) {
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a <a href="https://www.openstreetmap.org/way/' +
+                        motorwayString +
+                        '" target="_blank" rel="noopener">motorway ( ' + motorwayString + ')</a> with another incompatible road type<br/><br/>' +
+                        '<br /> <br /> <button onclick= removeFromWhitelist('+json[i]['Id']+')> Remove from Whitelist </button > '+
+                        '</div></div> ';
+
+
+
+                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                else {
+                    disconnectedWaysString = disconnectedWaysString.slice(0, -2);
+
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a motorway (' + motorwayString +
+                        ')<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
+                        '<br /> <br /> <button onclick= removeFromWhitelist(' + json[i]['Id'] + ')> Remove from Whitelist </button > '+
+                        '</div></div> ';
+
+                }
+                marker.info = new google.maps.InfoWindow({
+                    content: disconnectionInfo
+                });
+
+                //adding the onclick listener event for each marker
+                google.maps.event.addListener(marker, 'click', function () {
+                    var marker_map = this.getMap();
+                    this.info.open(marker_map, this);
+                });
+
+                //add the markers to global variable incorrectMarkersDictionary
+                markerGroups['whitlelistNodes'].set(json[i]['Id'], marker);
+            }
         }
 
         //when a user clicks whitelist node
         function addToWhitelist(id)
         {
             //call controller function
-            $.get("/Home/addToWhitelist",{id:id}, function (data) {  
+            $.get("/Home/addToWhitelist",{id:id}, function (data) {
                 alert(data);
-            }); 
-
-            console.log(markerGroups['incorrectMarkersDictionary'].get(''+id).position);
+            });
 
            //create whitelist node
             var whitelistMarker = new google.maps.Marker({
                         map: map,
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',                  
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',                  
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                         position: markerGroups['incorrectMarkersDictionary'].get(''+id).position ,
                 clickable: true,
                 title:''+id
@@ -448,13 +538,40 @@
             });
             //set visibility to false
             whitelistMarker.setVisible(false);
-
-            //remove the node from all the layers and add it to whitelist layer      
+            //remove the node from all the layers and add it to whitelist layer
             markerGroups['incorrectMarkersDictionary'].get('' + id).setMap(null);
-            markerGroups['whitlelistNodes'].set(''+id, whitelistMarker);
+            markerGroups['incorrectMarkersDictionary'].delete('' + id);
+            markerGroups['whitlelistNodes'].set('' + id, whitelistMarker);
+
         }
 
-        function showWhitelistNodes()
+        //when a user wants to remove a node from the whitelist
+        function removeFromWhitelist(id) {
+            //call controller function
+            $.get("/Home/removeFromWhitelist", { id: id }, function (data) {
+                alert(data);
+            });
+
+            //create whitelist node
+            var incorrectConnectionNode = new google.maps.Marker({
+                map: map,
+                //icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                position: markerGroups['whitlelistNodes'].get('' + id).position,
+                clickable: true,
+                title: '' + id
+
+            });
+
+            //set visibility to false
+            incorrectConnectionNode.setVisible(false);
+            //remove the node from all the layers and add it to whitelist layer
+            markerGroups['whitlelistNodes'].get('' + id).setMap(null);
+            markerGroups['whitlelistNodes'].delete('' + id);
+            markerGroups['incorrectMarkersDictionary'].set('' + id, incorrectConnectionNode);
+
+        }
+
+        function hideShowWhitelistNodes()
         {
             if (markerGroups['whitlelistNodes'].size > 0)
             {
@@ -469,7 +586,6 @@
                     }
                 }
             }
-             
         }
 
 

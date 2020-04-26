@@ -1,4 +1,5 @@
-﻿using OSMConnectivity.Models;
+﻿using Newtonsoft.Json;
+using OSMConnectivity.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +20,6 @@ namespace OSMConnectivity.Controllers
 
         public ActionResult Index()
         {
-
-            
-
             var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/trunk_NZ.json"))));
 
             var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/motorway_NZ.json"))));
@@ -42,50 +40,77 @@ namespace OSMConnectivity.Controllers
 
             ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
 
-
-            
-
-
             return View();
 
         }
 
-        //public ActionResult addToWhitelist(string id)
-        //{
-        //    string returnMsg = "Node " + id + " has been whitelisted";
+		public string addToWhitelist(string id)
+		{
+			string returnMsg = "Node " + id + " has been whitelisted";
 
+			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
 
-        //    incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+			string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
+			if (System.IO.File.Exists(whitelistNodeFile))
+			{
+				whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
+			}
+			else
+			{
+				whitelistNodes = new List<IncorrectConnectionNode>();
+			}
 
-        //    string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
-        //    if (System.IO.File.Exists(whitelistNodeFile))
-        //    {
-        //        whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
-        //    }
-        //    else
-        //    {
-        //        whitelistNodes = new List<IncorrectConnectionNode>();
-        //    }
+			foreach (IncorrectConnectionNode node in incorrectConnectionNodes)
+			{
+				if (node.Id.Equals(id))
+				{
+					whitelistNodes.Add(node);
+					incorrectConnectionNodes.Remove(node);
+					break;
+				}
+			}
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")), JsonConvert.SerializeObject(incorrectConnectionNodes));
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json")), JsonConvert.SerializeObject(whitelistNodes));
+			
+			return returnMsg;
+		}
 
-        //    //IncorrectConnectionNode whitelistedNode;
+		public string removeFromWhitelist(string id)
+		{
+			string returnMsg = "Node " + id + " has been removed from the whitelist";
 
-        //    foreach (IncorrectConnectionNode node in incorrectConnectionNodes)
-        //    {
-        //        if(node.Id.Equals(id))
-        //        {
-        //            whitelistNodes.Add(node);
-        //            incorrectConnectionNodes.Remove(node);
-        //            break;
-        //        }
-        //    }
+			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
 
-        //    ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
-        //    //ViewBag.whitelistNodes = whitelistNodes;
+			string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
+			whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
+			
+			foreach (IncorrectConnectionNode node in whitelistNodes)
+			{
+				if (node.Id.Equals(id))
+				{
+					incorrectConnectionNodes.Add(node);
+					whitelistNodes.Remove(node);
+					break;
+				}
+			}
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")), JsonConvert.SerializeObject(incorrectConnectionNodes));
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json")), JsonConvert.SerializeObject(whitelistNodes));
+			
+			return returnMsg;
+		}
 
-        //    return View();
-        //}
+		public JsonResult getWhiteListData()
+		{
+			whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"))));
+			var json = JsonConvert.SerializeObject(whitelistNodes);
+			return Json(json, JsonRequestBehavior.AllowGet);
+		}
 
-       
-
-    }
+		public JsonResult getIncorrectConnectionsData()
+        {
+			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+			var json = JsonConvert.SerializeObject(incorrectConnectionNodes);
+			return Json(json, JsonRequestBehavior.AllowGet);
+		}
+	}
 }
