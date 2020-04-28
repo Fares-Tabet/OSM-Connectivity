@@ -21,3 +21,6 @@ OSMConnectivity/bin/OSMConnectivity.dll
 *.rsp
 *.config
 *.xml
+*.dll
+*.xdt
+*.exe
