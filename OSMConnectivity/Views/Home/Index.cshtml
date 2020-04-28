@@ -74,7 +74,7 @@
     </div>
     <div id="floating-side-panel">
         <h1 class="title">OSM Connectivity Tool</h1>
-        <button onclick="hideShowIncorrectConnections()">Incorrect Connections</button>
+        <button onclick="highlightIncorrectConnections(1)">Incorrect Connections</button>
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
         <button onclick="drawDisconnections()">Disconnections</button>
@@ -141,7 +141,7 @@
         }));
 
         loadWhiteListMarkers();
-        highlightIncorrectConnections(1);
+
 
         function drawMotorwayGraph() {
 
@@ -312,9 +312,8 @@
                         position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
                         clickable: true,
                         title: json[i]['Id']
-                    });
-                    marker.setVisible(false);
 
+                    });
                 }
 
                 var disconnectionInfo = '';

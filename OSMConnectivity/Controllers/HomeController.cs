@@ -101,15 +101,7 @@ namespace OSMConnectivity.Controllers
 
 		public JsonResult getWhiteListData()
 		{
-			string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
-			if (System.IO.File.Exists(whitelistNodeFile))
-			{
-				whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
-			}
-			else
-			{
-				whitelistNodes = new List<IncorrectConnectionNode>();
-			}
+			whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"))));
 			var json = JsonConvert.SerializeObject(whitelistNodes);
 			return Json(json, JsonRequestBehavior.AllowGet);
 		}
