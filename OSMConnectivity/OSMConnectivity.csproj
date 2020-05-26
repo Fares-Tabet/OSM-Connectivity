@@ -124,6 +124,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\IncorrectConnectionNode.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Way.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -149,6 +150,7 @@
     <Content Include="Content\json_files\motorway_NZ.json" />
     <Content Include="Content\json_files\trunk_NZ.json" />
     <Content Include="Content\json_files\motorway_NZ_partial.json" />
+    <Content Include="Content\json_files\DisjointedSubTreeWays.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
