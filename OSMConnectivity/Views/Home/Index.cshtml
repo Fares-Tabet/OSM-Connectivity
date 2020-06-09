@@ -78,8 +78,9 @@
         <button onclick="drawMotorwayGraph()">Draw Motorway Graph</button>
         <button onclick="drawTrunkGraph()">Draw Trunk Graph</button>
         <button onclick="drawDisconnections()">Disconnections</button>
-        <button onclick="drawMaxSubTreeGraph()">Draw MaxSubTree Graph</button>
         <button onclick="download()">Download Report</button>
+        <button onclick="drawTrunkTrunkLinkDemoConnectivity()">Demo T/TL Connectivity</button>
+        <button onclick="drawTrunkTrunkLinkPrimaryDemoConnectivity()">Demo T/TL/P/PL Connectivity</button>
     </div>
     <div id="map"></div>
     <div id="legend">
@@ -164,6 +165,66 @@
             path: data,
             geodesic: true,
             strokeColor: '#001F3F',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+
+        }
+
+         function drawTrunkTrunkLinkDemoConnectivity() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkConnectivity));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+            }
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+            strokeColor:'#FF00D0',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+
+        }
+
+        function drawTrunkTrunkLinkPrimaryDemoConnectivity() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkPrimaryConnectivity));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+            }
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+            strokeColor:'#0040FF',
             strokeOpacity: 1.0,
             strokeWeight: 2
              });
@@ -263,13 +324,31 @@
 
         var log = ''
         function download() {
-            getMotorwarDisconnections(0)
-            var text = log;
-            var filename = "log.txt";
+           
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkConnectivity));
+            var filename = "NZ_TrunkTrunkLink_MotorwayConnectivityFix.json";
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
             //creating an invisible element
             var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8, '
-                + encodeURIComponent(text));
+            element.setAttribute('href', dataStr);
+          
+            element.setAttribute('download', filename);
+
+            document.body.appendChild(element);
+
+            //onClick property
+            element.click();
+
+            document.body.removeChild(element);
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkPrimaryConnectivity));
+            var filename = "NZ_TrunkTrunkLinkPrimary_MotorwayConnectivityFix.json";
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            //creating an invisible element
+            var element = document.createElement('a');
+            element.setAttribute('href', dataStr);
+          
             element.setAttribute('download', filename);
 
             document.body.appendChild(element);
