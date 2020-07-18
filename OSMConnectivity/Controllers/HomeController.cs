@@ -20,25 +20,61 @@ namespace OSMConnectivity.Controllers
 
         public ActionResult Index()
         {
-            var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_trunk_RNG.json"))));
+			// FJ Files
+			var FJ_P_viaS = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ-P_viaS.json"))));
+
+			var FJ_PS_viaST = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ-PS_viaST.json"))));
+
+			var FJ_Primary = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_primary_RNG.json"))));
+
+            var FJ_Secondary = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_secondary_RNG.json"))));
+
+			var FJ_FerryRoutes = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_FW_RNG.json"))));
+
+			var FJ_DisjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_disconnections.json"))));
+
+			var FJ_IncorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_Incorrect_PR_All_Connections.json"))));
+
+			// NZ Files
+			var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_trunk_RNG.json"))));
 
             var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_motorway_RNG.json"))));
+            
+			var NZ_FerryRoutes = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_FW_RNG.json"))));
 
-            var maxSubGraph = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/MaxSubtree.json"))));
+			var NZ_DisjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_disconnections.json"))));
 
-            var disjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_disconnections.json"))));
+			var maxSubGraph = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/MaxSubtree.json"))));
 
-            incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_INcorrectConnections.json"))));
+			var NZ_IncorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_IncorrectConnections.json"))));
 
-            var demoTrunkTrunkLinkConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/Demo_trunkonly.json"))));
-
-            ViewBag.demoTrunkTrunkLinkConnectivity = demoTrunkTrunkLinkConnectivity;
+			var demoTrunkTrunkLinkConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/Demo_trunkonly.json"))));
 
             var demoTrunkTrunkLinkPrimaryConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/Demo_trunk_primary.json"))));
 
-            ViewBag.demoTrunkTrunkLinkPrimaryConnectivity = demoTrunkTrunkLinkPrimaryConnectivity;
+			// Concat NZ and FJ data
+			var ferryRoutes = NZ_FerryRoutes.Concat(FJ_FerryRoutes);
+
+			var disjointedSubTreeWays = NZ_DisjointedSubTreeWays.Concat(FJ_DisjointedSubTreeWays);
+
+			incorrectConnectionNodes = NZ_IncorrectConnectionNodes.Concat(FJ_IncorrectConnectionNodes).ToList();
+
+			// Assign ViewBag data
+			ViewBag.FJ_P_viaS = FJ_P_viaS;
+
+			ViewBag.FJ_PS_viaST = FJ_PS_viaST;
+
+			ViewBag.FJ_Primary = FJ_Primary;
+
+			ViewBag.demoTrunkTrunkLinkConnectivity = demoTrunkTrunkLinkConnectivity;
+
+			ViewBag.FJ_Secondary = FJ_Secondary;
+
+			ViewBag.demoTrunkTrunkLinkPrimaryConnectivity = demoTrunkTrunkLinkPrimaryConnectivity;
 
             ViewBag.trunks = trunks;
+
+            ViewBag.ferryRoutes = ferryRoutes;
 
             ViewBag.motorways = motorways;
 
@@ -46,7 +82,7 @@ namespace OSMConnectivity.Controllers
 
             ViewBag.maxSubGraph = maxSubGraph;
 
-            ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
+            ViewBag.incorrectConnectionNodes = NZ_IncorrectConnectionNodes;
 
             return View();
 
@@ -124,7 +160,10 @@ namespace OSMConnectivity.Controllers
 
 		public JsonResult getIncorrectConnectionsData()
         {
-			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_IncorrectConnections.json"))));
+			var FJ_IncorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/FJ_Incorrect_PR_All_Connections.json"))));
+			var NZ_IncorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ_IncorrectConnections.json"))));
+			incorrectConnectionNodes = NZ_IncorrectConnectionNodes.Concat(FJ_IncorrectConnectionNodes).ToList();
+
 			var json = JsonConvert.SerializeObject(incorrectConnectionNodes);
 			return Json(json, JsonRequestBehavior.AllowGet);
 		}

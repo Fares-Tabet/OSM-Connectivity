@@ -1,0 +1,1075 @@
+﻿
+@{
+    ViewBag.Title = "NewZealand";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://wagtrung.github.io/store/themify-icons/themify-icons.css">
+
+    <title>Data Layer: Polygon</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+        body {
+            overflow-y: scroll;
+            font-family: sans-serif;
+            background-color: #fefefe;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #legend {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            padding: 10px;
+            margin: 10px;
+            border: 3px solid #000;
+            border-radius: 3px;
+        }
+
+        .category {
+            position: absolute;
+            width: 17em;
+            margin-top: 60px;
+            margin-left: 11px;
+            height: 270px;
+            top: 0;
+            background: #fff;
+            font-size: 1.6rem;
+            border-radius: 3px;
+        }
+
+        .ctghead {
+            padding: 2px 40px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+        }
+
+            .ctghead h3 {
+                display: inline-flex;
+                align-items: center;
+                font-size: 1.3rem;
+                font-weight: 700;
+            }
+
+                .ctghead h3 i {
+                    font-size: 2.5rem;
+                    margin-right: 7px;
+                }
+
+        .ctgul {
+            margin-top: 16px;
+            padding: 0 0 16px 0;
+        }
+
+        .ctgulChild {
+            margin: 0 0 0 30px;
+            padding: 0 0 10px 0;
+        }
+
+        .ctgliChild {
+            font-size: 1.2rem;
+            display: block;
+            position: relative;
+            list-style: none;
+            transition: .3s linear;
+            box-shadow: transparent 0px 14px 13px -12px, transparent 0px 26px 32px -22px;
+        }
+
+        .ctgli:hover {
+            border-left: 4px solid var(--hove);
+            background: #d2ffe221;
+            box-shadow: rgba(50, 50, 93, 0.08) 0px 14px 13px -12px, rgba(0, 0, 0, 0.16) 0px 26px 32px -22px;
+        }
+
+        .ctga, .ctgaChild {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            color: #333;
+            text-decoration: none;
+            padding: 13px 40px 13px 34px;
+            position: relative;
+            right: 0;
+            transition: right linear .3s;
+        }
+
+            .ctga i {
+                margin-right: 10px;
+            }
+
+        .ctgaChild {
+            padding: 13px 13px 13px 36px;
+        }
+
+            .ctga:hover, .ctgaChild:hover {
+                right: -4px;
+                color: var(--hove);
+                text-decoration: none;
+            }
+
+        ctga:active, ctgaChild:active, ctga:visited, ctgaChild:visited, ctga:focus, ctgaChild:focus {
+            text-decoration: none;
+        }
+
+        .ctgaChild::before {
+            top: 50%;
+            transform: translateY(-50%);
+            left: 20px;
+            position: absolute;
+            border-style: solid;
+            border-color: transparent transparent transparent var(--hove);
+            border-width: 4px;
+            content: "";
+        }
+
+        .down {
+            position: absolute;
+            font-size: 1.3rem;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        .ctgulChild {
+            display: none;
+            text-decoration: none;
+        }
+
+        .ctgli {
+            display: block;
+            position: relative;
+            list-style: none;
+            border-left: 4px solid transparent;
+            transition: .3s linear;
+        }
+
+        :root {
+            --white: #fff;
+            --black: #000;
+            --textColor: #333;
+            --hove: #04ca88;
+        }
+
+        label {
+            font-weight: 100;
+            font-size: smaller;
+            margin-bottom: 0;
+            text-decoration: none;
+        }
+
+            label:active, label:visited, labe:focus {
+                text-decoration: none;
+            }
+
+        input[type="checkbox"] {
+            vertical-align: middle;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin: -2px 0 0;
+            line-height: normal;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <nav class="category" id="category">
+        <div class="ctghead">
+            <h3><i class="ti-list"></i>OSM Connectivity Tools</h3>
+        </div>
+        <ul class="ctgul">
+            <li class="ctgli">
+                <a class="ctga">
+                    <label for="incorrectConnections">
+                        <input class="form-check-input move-left" type="checkbox" id="incorrectConnections" onclick="hideShowIncorrectConnections()">
+                        Incorrect Connections
+                    </label>
+                </a>
+            </li>
+            <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+            <li class="ctgli">
+                <a class="ctga">
+                    <label for="whitelistNodes">
+                        <input class="form-check-input move-left" type="checkbox" id="whitelistNodes" onclick="hideShowWhitelistNodes()">
+                        Whitelisted Nodes
+                    </label>
+                </a>
+            </li>
+            <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+            <li class="ctgli">
+                <a href="./Fiji" class="ctga">
+                    <i class="ti-pin"></i>
+                    <label>
+                        Go to FJ
+                    </label>
+                </a>
+            </li>
+            <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+            <li class="ctgli">
+                <a class="ctga" data-toggle="collapse" href="#FijiConnectivityTools" role="button" aria-expanded="false" aria-controls="FijiConnectivityTools" onclick="toggleSidebar()" style="text-decoration:none;color:#333;">
+                    <i class="ti-pencil"></i>
+                    <label>
+                        NZ Connectivity Tools
+                    </label>
+                    <i class="ti-angle-down down"></i>
+                </a>
+
+                <div class="collapse" id="FijiConnectivityTools">
+                    <ul>
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="motorway">
+                                    <input class="form-check-input move-left" type="checkbox" id="primary" onclick="drawMotorwayGraph()">
+                                    Motorway Graph
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="trunk">
+                                    <input class="form-check-input move-left" type="checkbox" id="secondary" onclick="drawTrunkGraph()">
+                                    Trunk
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="ferry">
+                                    <input class="form-check-input move-left" type="checkbox" id="ferry" onclick="drawFerryRoutes()">
+                                    Ferry Routes
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="ferryTerminals">
+                                    <input class="form-check-input move-left" type="checkbox" id="ferry_terminals" onclick="drawFerryTerminals()">
+                                    Ferry Terminals
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="disconnections">
+                                    <input class="form-check-input move-left" type="checkbox" id="disconnections" onclick="drawDisconnections()">
+                                    Disconnections
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="T_TL_Connectivity">
+                                    <input class="form-check-input move-left" type="checkbox" id="primarViaSecondary" onclick="drawTrunkTrunkLinkDemoConnectivity()">
+                                    T/TL Connectivity
+                                </label>
+                            </a>
+                        </li>
+                        <hr style="margin-bottom:0;margin-top:0;margin-left:0">
+                        <li class="ctgliChild">
+                            <a class="ctgaChild">
+                                <label for="T_TL_P_PL_Connectivity">
+                                    <input class="form-check-input move-left" type="checkbox" id="primarViaSecondary" onclick="drawTrunkTrunkLinkPrimaryDemoConnectivity()">
+                                    T/TL/P/PL Connectivity
+                                </label>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="legend">
+        <h3>Legend</h3>
+        <img src="~/Content/images/black.png" width="50" height="8"> Motorway
+        <br />
+        <img src="~/Content/images/red.png" width="50" height="8"> Trunk
+        <br />
+        <img src="~/Content/images/darkBlue.png" width="50" height="8"> Ferry
+        <br />
+        <img src="~/Content/images/ff00d0.JPG" width="50" height="8"> T/TL Connectivity
+        <br />
+        <img src="~/Content/images/0040ff.png" width="50" height="8"> T/TL/P/PL Connectivity
+        <br />
+        <img src="~/Content/images/pin.png" width="45" height="50"> Incompatible Connection
+        <br />
+        <img src="~/Content/images/blue-pin.png" width="45" height="50"> Whitelist Nodes
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2BmtjwtFmGF_Dh-J8ltarifOtyrRYd7w&callback=initMap"></script>
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+
+        var clicked = true;
+
+        // Set the sidebar to a larger height when expand the collapsed items.
+        function toggleSidebar() {
+            if (clicked) {
+                document.getElementById("category").style.height = "555px";
+                this.clicked = false;
+            } else {
+                document.getElementById("category").style.height = "270px";
+                this.clicked = true;
+            }
+        }
+
+        //Global variables:
+        var incorrectMarkersDictionary = new Map();
+        var whitlelistNodes = new Map();
+        var markerGroups = {
+            incorrectMarkersDictionary,
+            whitlelistNodes
+        };
+
+        var element = document.getElementById("map");
+        var undrawMotorwayGraph = false;
+        var undrawTrunkGraph = false;
+        var undrawDisconnections = false;
+        var undrawTrunkTrunkLinkDemo = false;
+        var undrawTrunkTrunkTrunkLinkPrimaryDemo = false;
+        var undrawFerryRoutes = false;
+        var undrawFerryTerminals = false;
+        var motorwayLine = []
+        var trunkLine = []
+        var disconnectionsLine = []
+        var trunkTrunkLinkDemoLine = []
+        var trunkTrunkLinkPrimaryDemoLine = []
+        var ferryRoutesLine = []
+        var ferryTerminalsMakers = []
+
+        /*
+        Build list of map types.
+        You can also use var mapTypeIds = ["roadmap", "satellite", "hybrid", "terrain", "OSM"]
+        but static lists suck when Google updates the default list of map types.
+        */
+        var mapTypeIds = [];
+        for (var type in google.maps.MapTypeId) {
+            mapTypeIds.push(google.maps.MapTypeId[type]);
+        }
+        mapTypeIds.push("OSM");
+
+
+        var map = new google.maps.Map(element, {
+            center: new google.maps.LatLng(-41.270634, 173.283966),
+            //center: new google.maps.LatLng(-17.713371, 178.065033),
+            zoom: 6,
+            mapTypeId: "OSM",
+            mapTypeControlOptions: {
+                mapTypeIds: mapTypeIds
+            }
+        });
+
+
+        map.mapTypes.set("OSM", new google.maps.ImageMapType({
+            getTileUrl: function (coord, zoom) {
+                // See above example if you need smooth wrapping at 180th meridian
+                return "https://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+            },
+            tileSize: new google.maps.Size(256, 256),
+            name: "OpenStreetMap",
+            maxZoom: 18
+        }));
+
+        loadWhiteListMarkers();
+        highlightIncorrectConnections(1);
+
+        function drawFerryTerminals() {
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ferryTerminals));
+            var icon = {
+                url: "http://maps.google.com/mapfiles/kml/shapes/ferry.png", // url
+                scaledSize: new google.maps.Size(20, 20), // scaled size
+            };
+            var count = Object.keys(json).length;
+            for (var i = 0; i < count; i++) {
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: icon,
+                    animation: google.maps.Animation.DROP,
+                    position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
+                    title: json[i]['Id']
+                });
+                ferryTerminalsMakers.push(marker);
+            }
+
+            if (!undrawFerryTerminals) {
+                for (var i = 0; i < ferryTerminalsMakers.length; i++) {
+                    ferryTerminalsMakers[i].setMap(map);
+                }
+                undrawFerryTerminals = true;
+            } else {
+                for (var i = 0; i < ferryTerminalsMakers.length; i++) {
+                    this.ferryTerminalsMakers[i].setMap(null);
+                }
+                this.ferryTerminalsMakers = new Array();
+                undrawFerryTerminals = false;
+            }
+        }
+
+        function drawFerryRoutes() {
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.ferryRoutes));
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+                for (var j = 0; j < ptsCount; j++) {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                    path: data,
+                    geodesic: true,
+                    strokeColor: '#00008B',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                ferryRoutesLine.push(flightPath);
+            }
+            if (!undrawFerryRoutes) {
+                for (i = 0; i < ferryRoutesLine.length; i++) {
+                    ferryRoutesLine[i].setMap(map);
+                }
+                undrawFerryRoutes = true;
+            } else {
+                for (i = 0; i < ferryRoutesLine.length; i++) {
+                    ferryRoutesLine[i].setMap(null);
+                }
+                undrawFerryRoutes = false;
+            }
+        }
+
+        function drawMotorwayGraph() {
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.motorways));
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+                for (var j = 0; j < ptsCount; j++) {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                    path: data,
+                    geodesic: true,
+                    strokeColor: '#001F3F',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                motorwayLine.push(flightPath);
+            }
+            if (!undrawMotorwayGraph) {
+                for (i = 0; i < motorwayLine.length; i++) {
+                    motorwayLine[i].setMap(map);
+                }
+                undrawMotorwayGraph = true;
+            } else {
+                for (i = 0; i < motorwayLine.length; i++) {
+                    motorwayLine[i].setMap(null);
+                }
+                undrawMotorwayGraph = false;
+            }
+        }
+
+         function drawTrunkTrunkLinkDemoConnectivity() {
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkConnectivity));
+            var count = Object.keys(json).length;
+
+             for (var i = 0; i < count; i++) {
+
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+                for (var j = 0; j < ptsCount; j++)
+                {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                    path: data,
+                    geodesic: true,
+                    strokeColor:'#FF00D0',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                trunkTrunkLinkDemoLine.push(flightPath);
+             }
+             if (!undrawTrunkTrunkLinkDemo) {
+                 for (i = 0; i < trunkTrunkLinkDemoLine.length; i++) {
+                     trunkTrunkLinkDemoLine[i].setMap(map);
+                 }
+                 undrawTrunkTrunkLinkDemo = true;
+             } else {
+                 for (i = 0; i < trunkTrunkLinkDemoLine.length; i++) {
+                     trunkTrunkLinkDemoLine[i].setMap(null);
+                 }
+                 undrawTrunkTrunkLinkDemo = false;
+             }
+
+        }
+
+        function drawTrunkTrunkLinkPrimaryDemoConnectivity() {
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkPrimaryConnectivity));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+                for (var j = 0; j < ptsCount; j++)
+                {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                path: data,
+                geodesic: true,
+                strokeColor:'#0040FF',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+                });
+                trunkTrunkLinkPrimaryDemoLine.push(flightPath);
+            }
+            if (!undrawTrunkTrunkTrunkLinkPrimaryDemo) {
+                for (i = 0; i < trunkTrunkLinkPrimaryDemoLine.length; i++) {
+                    trunkTrunkLinkPrimaryDemoLine[i].setMap(map);
+                }
+                undrawTrunkTrunkTrunkLinkPrimaryDemo = true;
+            } else {
+                for (i = 0; i < trunkTrunkLinkPrimaryDemoLine.length; i++) {
+                    trunkTrunkLinkPrimaryDemoLine[i].setMap(null);
+                }
+                undrawTrunkTrunkTrunkLinkPrimaryDemo = false;
+            }
+        }
+
+        function drawMaxSubTreeGraph() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.maxSubGraph));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+            for (var j = 0; j < ptsCount; j++)
+            {
+                data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+            }
+
+            var flightPath = new google.maps.Polyline({
+            path: data,
+            geodesic: true,
+            strokeColor: '#001F3F',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+             });
+
+            flightPath.setMap(map);
+            }
+        }
+
+        function drawDisconnections() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.disjointedSubTreeWays));
+            var count = Object.keys(json).length;
+
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+                for (var j = 0; j < ptsCount; j++)
+                {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                    path: data,
+                    geodesic: true,
+                        strokeColor: json[i]['colorCode'],
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                disconnectionsLine.push(flightPath);
+            }
+            if (!undrawDisconnections) {
+                for (i = 0; i < disconnectionsLine.length; i++) {
+                    disconnectionsLine[i].setMap(map);
+                }
+                undrawDisconnections = true;
+            } else {
+                for (i = 0; i < disconnectionsLine.length; i++) {
+                    disconnectionsLine[i].setMap(null);
+                }
+                undrawDisconnections = false;
+            }
+
+        }
+
+        function drawTrunkGraph() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.trunks));
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+                var data = [];
+                var ptsCount = Object.keys(json[i]['nodes']).length;
+
+
+                for (var j = 0; j < ptsCount; j++)
+                {
+                    data.push({ lat: json[i]['nodes'][j]['Lat'], lng: json[i]['nodes'][j]['Lng'] });
+                }
+
+                var flightPath = new google.maps.Polyline({
+                    path: data,
+                    geodesic: true,
+                        strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                trunkLine.push(flightPath);
+            }
+            if (!undrawTrunkGraph) {
+                for (i = 0; i < trunkLine.length; i++) {
+                    trunkLine[i].setMap(map);
+                }
+                undrawTrunkGraph = true;
+            } else {
+                for (i = 0; i < trunkLine.length; i++) {
+                    trunkLine[i].setMap(null);
+                }
+                undrawTrunkGraph = false;
+            }
+        }
+
+        var log = ''
+        function download() {
+
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkConnectivity));
+            var filename = "NZ_TrunkTrunkLink_MotorwayConnectivityFix.json";
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            //creating an invisible element
+            var element = document.createElement('a');
+            element.setAttribute('href', dataStr);
+
+            element.setAttribute('download', filename);
+
+            document.body.appendChild(element);
+
+            //onClick property
+            element.click();
+
+            document.body.removeChild(element);
+            @using Newtonsoft.Json;
+            var json = @Html.Raw(JsonConvert.SerializeObject(ViewBag.demoTrunkTrunkLinkPrimaryConnectivity));
+            var filename = "NZ_TrunkTrunkLinkPrimary_MotorwayConnectivityFix.json";
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            //creating an invisible element
+            var element = document.createElement('a');
+            element.setAttribute('href', dataStr);
+
+            element.setAttribute('download', filename);
+
+            document.body.appendChild(element);
+
+            //onClick property
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+
+        function highlightIncorrectConnections(flag) {
+
+            var json;
+
+            $.ajax({
+                url: "NewZealand/getIncorrectConnectionsData",
+                method: "GET",
+                success: function (data) {
+                    data = JSON.parse(data);
+                    json = data;
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                async:false
+            });
+
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                // Add a marker pin of each disconnection on the map
+                if (flag == 1) {
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        //icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        animation: google.maps.Animation.DROP,
+
+                        position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
+                        clickable: true,
+                        title: json[i]['Id']
+                    });
+                    marker.setVisible(false);
+
+                }
+
+                var disconnectionInfo = '';
+                var NodeWayCount = json[i]['roads'].length;
+
+
+                var motorwayString = '';
+                var disconnectedWaysString = '';
+
+                for (var j = 0; j < NodeWayCount; j++)
+                {
+
+                    if (json[i]['roads'][j]['roadClass'] != 'motorway' && json[i]['roads'][j]['roadClass'] != 'motorway_link')
+                    {
+                        disconnectedWaysString += json[i]['roads'][j]['roadClass'] + ' (' + json[i]['roads'][j]['Id'] + '), ';
+                    }
+                    else
+                    {
+                        motorwayString += json[i]['roads'][j]['Id'] + ', ';
+                    }
+                }
+
+                motorwayString = motorwayString.slice(0, -2);
+
+                if (NodeWayCount == 1) {
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a <a href="https://www.openstreetmap.org/way/' +
+                        motorwayString +
+                        '" target="_blank" rel="noopener">motorway ( ' + motorwayString +')</a> with another incompatible road type<br/><br/>' +
+
+                        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'Open in OSM iD </a><br/><br/><button onclick = addToWhitelist('+json[i]['Id']+')> Whitelist </button>'+
+                        '</div></div> ';
+
+                    log = log +"Node " + json[i]['Id'] + "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+
+
+                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                else
+
+                {
+                    disconnectedWaysString = disconnectedWaysString.slice(0, -2);
+                    disconnectedWaysString += motorwayString == "" ? "" : ", motorway (" + motorwayString + ")";
+
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> is an incorrect connection between:' +
+                        '<br/>' + disconnectedWaysString + '<br/><br/>' +
+
+                        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                        'Open in OSM iD </a><br/><br/><button onclick = addToWhitelist('+json[i]['Id']+')> Whitelist </button>' +
+                        '</div></div> ';
+
+                    log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                        '\nand Ways: ' + disconnectedWaysString +
+                        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+                }
+                //if (NodeWayCount == 1) {
+                //    disconnectionInfo = '<div id="content">' +
+                //        '<div id="siteNotice">' +
+                //        '</div>' +
+                //        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                //        '<div id="bodyContent">' +
+                //        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                //        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a <a href="https://www.openstreetmap.org/way/' +
+                //        motorwayString +
+                //        '" target="_blank" rel="noopener">motorway ( ' + motorwayString +')</a> with another incompatible road type<br/><br/>' +
+
+                //        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                //        'Open in OSM iD </a><br/><br/><button onclick = addToWhitelist('+json[i]['Id']+')> Whitelist </button>'+
+                //        '</div></div> ';
+
+                //    log = log +"Node " + json[i]['Id'] + "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                //        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+
+
+                //}// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                //else
+
+                //{
+                //    disconnectedWaysString = disconnectedWaysString.slice(0, -2);
+
+                //    disconnectionInfo = '<div id="content">' +
+                //        '<div id="siteNotice">' +
+                //        '</div>' +
+                //        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                //        '<div id="bodyContent">' +
+                //        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                //        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a motorway (' + motorwayString +
+                //        ')<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
+
+                //        '<a href="https://www.openstreetmap.org/edit?node=' + json[i]['Id'] + '" target="_blank" rel="noopener">' +
+                //        'Open in OSM iD </a><br/><br/><button onclick = addToWhitelist('+json[i]['Id']+')> Whitelist </button>' +
+                //        '</div></div> ';
+
+                //    log = log + "Node " + json[i]['Id']+ "\nNode " + json[i]['Id'] + ' is a disconnection in the motorway: ' + motorwayString +
+                //        '\nand Ways: ' + disconnectedWaysString +
+                //        '\nFor more information and options go to: ' + 'https://www.openstreetmap.org/node/' + json[i]['Id'] + '\n\n\n';
+                //}
+
+                if (flag == 1) {
+                    marker.info = new google.maps.InfoWindow({
+                        content: disconnectionInfo
+                    });
+
+                    //adding the onclick listener event for each marker
+                    google.maps.event.addListener(marker, 'click', function () {
+                        var marker_map = this.getMap();
+                        this.info.open(marker_map, this);
+                    });
+                }
+
+                //add the markers to global variable incorrectMarkersDictionary
+                markerGroups['incorrectMarkersDictionary'].set(json[i]['Id'],marker);
+            }
+
+        }
+
+        function hideShowIncorrectConnections()
+        {
+
+            if (markerGroups['incorrectMarkersDictionary'].size > 0)
+            {
+                if (markerGroups['incorrectMarkersDictionary'].values().next().value.getVisible() == true) {
+                    for (const [key, value] of markerGroups['incorrectMarkersDictionary'].entries()) {
+                        value.setVisible(false);
+                    }
+                } else
+                {
+                    for (const [key, value] of markerGroups['incorrectMarkersDictionary'].entries()) {
+                        value.setVisible(true);
+                    }
+                }
+            }
+
+        }
+
+
+        function loadWhiteListMarkers() {
+
+            var json;
+
+            $.ajax({
+                url: "NewZealand/getWhiteListData",
+                method: "GET",
+                success: function (data) {
+                    data = JSON.parse(data);
+                    json = data;
+
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                async:false
+
+            });
+
+            var count = Object.keys(json).length;
+
+            for (var i = 0; i < count; i++) {
+
+                // Add a marker pin of each disconnection on the map
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    animation: google.maps.Animation.DROP,
+
+                    position: { lat: json[i]['Lat'], lng: json[i]['Lng'] },
+                    clickable: true,
+                    title: json[i]['Id']
+
+                });
+
+                marker.setVisible(false);
+
+                var NodeWayCount = json[i]['roads'].length;
+
+                var motorwayString = '';
+                var disconnectedWaysString = '';
+
+                for (var j = 0; j < NodeWayCount; j++) {
+
+                    if (json[i]['roads'][j]['roadClass'] != 'motorway' && json[i]['roads'][j]['roadClass'] != 'motorway_link') {
+                        disconnectedWaysString += json[i]['roads'][j]['roadClass'] + ' (' + json[i]['roads'][j]['Id'] + '), ';
+                    }
+                    else {
+                        motorwayString += json[i]['roads'][j]['Id'] + ', ';
+                    }
+                }
+
+                motorwayString = motorwayString.slice(0, -2);
+
+                if (NodeWayCount == 1) {
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a <a href="https://www.openstreetmap.org/way/' +
+                        motorwayString +
+                        '" target="_blank" rel="noopener">motorway ( ' + motorwayString + ')</a> with another incompatible road type<br/><br/>' +
+                        '<br /> <br /> <button onclick= removeFromWhitelist('+json[i]['Id']+')> Remove from Whitelist </button > '+
+                        '</div></div> ';
+
+
+
+                }// if there are 2 ways corresponding to the node, then one is motorway and the other is the disconnection
+                else {
+                    disconnectedWaysString = disconnectedWaysString.slice(0, -2);
+
+                    disconnectionInfo = '<div id="content">' +
+                        '<div id="siteNotice">' +
+                        '</div>' +
+                        '<h2 id="firstHeading" class="firstHeading">Incorrect Connection</h2>' +
+                        '<div id="bodyContent">' +
+                        '<p style="width:250px"><a href="https://www.openstreetmap.org/node/' + json[i]['Id'] +
+                        '" target="_blank" rel="noopener"><b>Node ' + json[i]['Id'] + '</a> connects a motorway (' + motorwayString +
+                        ')<br/> with incompatible ' + disconnectedWaysString + '<br/><br/>' +
+                        '<br /> <br /> <button onclick= removeFromWhitelist(' + json[i]['Id'] + ')> Remove from Whitelist </button > '+
+                        '</div></div> ';
+
+                }
+                marker.info = new google.maps.InfoWindow({
+                    content: disconnectionInfo
+                });
+
+                //adding the onclick listener event for each marker
+                google.maps.event.addListener(marker, 'click', function () {
+                    var marker_map = this.getMap();
+                    this.info.open(marker_map, this);
+                });
+
+                //add the markers to global variable incorrectMarkersDictionary
+                markerGroups['whitlelistNodes'].set(json[i]['Id'], marker);
+            }
+        }
+
+        //when a user clicks whitelist node
+        function addToWhitelist(id)
+        {
+            //call controller function
+            $.get("/NewZealand/addToWhitelist",{id:id}, function (data) {
+                alert(data);
+            });
+
+           //create whitelist node
+            var whitelistMarker = new google.maps.Marker({
+                        map: map,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        position: markerGroups['incorrectMarkersDictionary'].get(''+id).position ,
+                clickable: true,
+                title:''+id
+
+            });
+            //set visibility to false
+            whitelistMarker.setVisible(false);
+            //remove the node from all the layers and add it to whitelist layer
+            markerGroups['incorrectMarkersDictionary'].get('' + id).setMap(null);
+            markerGroups['incorrectMarkersDictionary'].delete('' + id);
+            markerGroups['whitlelistNodes'].set('' + id, whitelistMarker);
+
+        }
+
+        //when a user wants to remove a node from the whitelist
+        function removeFromWhitelist(id) {
+            //call controller function
+            $.get("/NewZealand/removeFromWhitelist", { id: id }, function (data) {
+                alert(data);
+            });
+
+            //create whitelist node
+            var incorrectConnectionNode = new google.maps.Marker({
+                map: map,
+                //icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                position: markerGroups['whitlelistNodes'].get('' + id).position,
+                clickable: true,
+                title: '' + id
+
+            });
+
+            //set visibility to false
+            incorrectConnectionNode.setVisible(false);
+            //remove the node from all the layers and add it to whitelist layer
+            markerGroups['whitlelistNodes'].get('' + id).setMap(null);
+            markerGroups['whitlelistNodes'].delete('' + id);
+            markerGroups['incorrectMarkersDictionary'].set('' + id, incorrectConnectionNode);
+
+        }
+
+        function hideShowWhitelistNodes()
+        {
+            if (markerGroups['whitlelistNodes'].size > 0)
+            {
+                if (markerGroups['whitlelistNodes'].values().next().value.getVisible() == true) {
+                    for (const [key, value] of markerGroups['whitlelistNodes'].entries()) {
+                        value.setVisible(false);
+                    }
+                } else
+                {
+                    for (const [key, value] of markerGroups['whitlelistNodes'].entries()) {
+                        value.setVisible(true);
+                    }
+                }
+            }
+        }
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+    </script>
+</body>
+</html>
