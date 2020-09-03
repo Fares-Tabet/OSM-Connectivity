@@ -14,60 +14,110 @@ namespace OSMConnectivity.Controllers
 	{
 		JavaScriptSerializer ser = new JavaScriptSerializer() { MaxJsonLength = 86753090 };
 
-		public List<IncorrectConnectionNode> incorrectConnectionNodes;
+		public List<IncorrectConnectionNode> incorrectConnectionsMW;
+
+		public List<IncorrectConnectionNode> incorrectConnectionsPR;
+
+		public List<IncorrectConnectionNode> incorrectConnectionsSEC;
+
+		public List<IncorrectConnectionNode> incorrectConnectionsTER;
+
+		public List<IncorrectConnectionNode> incorrectConnectionsTR;
 
 		public List<IncorrectConnectionNode> whitelistNodes;
 
 		public ActionResult Index()
 		{
-			var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_trunk_RNG.json"))));
+			// NZ Incorrect Connections
+			var incorrectConnectionsMW = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json"))));
 
-			var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_motorway_RNG.json"))));
+			//var incorrectConnectionsPR = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_PR_trimmed.json"))));
+
+			//var incorrectConnectionsSEC = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_SEC_trimmed.json"))));
+
+			//var incorrectConnectionsTER = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_TER_trimmed.json"))));
+
+			//var incorrectConnectionsTR = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_TR_trimmed.json"))));
+
+			var primary = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_PR_RNG.json"))));
+			
+			var secondary = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_SEC_RNG.json"))));
+
+			var tertiary = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_TER_RNG.json"))));
+
+			var motorways = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_MW_RNG.json"))));
+
+			var trunks = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_TR_RNG.json"))));
 
 			var ferryRoutes = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_FW_RNG.json"))));
 
 			var ferryTerminals = ser.Deserialize<List<FerryTerminals>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_FerryTerminals.json"))));
 
-			var disjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_disconnections.json"))));
+			//var disjointedSubTreeWays = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_disconnections.json"))));
+			
+			var disjointedSubTreeWaysMW = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_motorway_disconnections.json"))));
+			
+			var disjointedSubTreeWaysFW = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_disconnections_Ferry.json"))));
 
-			var maxSubGraph = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/MaxSubtree.json"))));
-
-			var incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_IncorrectConnections.json"))));
+			//var maxSubGraph = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/MaxSubtree.json"))));
 
 			var demoLowerTrunkTrunkLinkConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_T-TL-Fix_Lower.json"))));
 
-			var demoUpperTrunkTrunkLinkConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_T-TL-Fix_Upper.json"))));
+			var demoUpperTrunkTrunkLinkConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_T-TL-Fix_upperMerged.json"))));
 
+			// NZ Connectivity Fixes
 			var demoTrunkTrunkLinkConnectivity = demoLowerTrunkTrunkLinkConnectivity.Concat(demoUpperTrunkTrunkLinkConnectivity);
 
 			var demoTrunkTrunkLinkPrimaryConnectivity = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_T-TL-P-PL-Fix_Lower.json"))));
 
-			ViewBag.demoTrunkTrunkLinkConnectivity = demoTrunkTrunkLinkConnectivity;
+			var demoFRTrailLower = ser.Deserialize<List<Way>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/ViewFRTrialLower.json"))));
 
-			ViewBag.demoTrunkTrunkLinkPrimaryConnectivity = demoTrunkTrunkLinkPrimaryConnectivity;
+            ViewBag.incorrectConnectionsMW = incorrectConnectionsMW;
 
-			ViewBag.trunks = trunks;
+			ViewBag.incorrectConnectionsPR = incorrectConnectionsPR;
 
-			ViewBag.ferryRoutes = ferryRoutes;
+			ViewBag.incorrectConnectionsSEC = incorrectConnectionsSEC;
 
-			ViewBag.ferryTerminals = ferryTerminals;
+			ViewBag.incorrectConnectionsTER = incorrectConnectionsTER;
 
-			ViewBag.motorways = motorways;
+			ViewBag.incorrectConnectionsTR = incorrectConnectionsTR;
 
-			ViewBag.disjointedSubTreeWays = disjointedSubTreeWays;
+            ViewBag.primary = primary;
 
-			ViewBag.maxSubGraph = maxSubGraph;
+            ViewBag.secondary = secondary;
 
-			ViewBag.incorrectConnectionNodes = incorrectConnectionNodes;
+            ViewBag.tertiary = tertiary;
 
-			return View();
+            ViewBag.motorways = motorways;
+
+            ViewBag.trunks = trunks;
+
+            ViewBag.ferryRoutes = ferryRoutes;
+
+            ViewBag.ferryTerminals = ferryTerminals;
+
+            ViewBag.disjointedSubTreeWaysMW = disjointedSubTreeWaysMW;
+
+            ViewBag.disjointedSubTreeWaysFW = disjointedSubTreeWaysFW;
+
+            ViewBag.demoTrunkTrunkLinkConnectivity = demoTrunkTrunkLinkConnectivity;
+
+            ViewBag.demoTrunkTrunkLinkPrimaryConnectivity = demoTrunkTrunkLinkPrimaryConnectivity;
+
+            ViewBag.demoFRTrailLower = demoFRTrailLower;
+
+            //ViewBag.disjointedSubTreeWays = disjointedSubTreeWays;
+
+            //ViewBag.maxSubGraph = maxSubGraph;
+
+            return View();
 		}
 
 		public string addToWhitelist(string id)
 		{
 			string returnMsg = "Node " + id + " has been whitelisted";
 
-			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+			incorrectConnectionsMW = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json"))));
 
 			string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
 			if (System.IO.File.Exists(whitelistNodeFile))
@@ -79,16 +129,16 @@ namespace OSMConnectivity.Controllers
 				whitelistNodes = new List<IncorrectConnectionNode>();
 			}
 
-			foreach (IncorrectConnectionNode node in incorrectConnectionNodes)
+			foreach (IncorrectConnectionNode node in incorrectConnectionsMW)
 			{
 				if (node.Id.Equals(id))
 				{
 					whitelistNodes.Add(node);
-					incorrectConnectionNodes.Remove(node);
+					incorrectConnectionsMW.Remove(node);
 					break;
 				}
 			}
-			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")), JsonConvert.SerializeObject(incorrectConnectionNodes));
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json")), JsonConvert.SerializeObject(incorrectConnectionsMW));
 			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json")), JsonConvert.SerializeObject(whitelistNodes));
 
 			return returnMsg;
@@ -98,7 +148,7 @@ namespace OSMConnectivity.Controllers
 		{
 			string returnMsg = "Node " + id + " has been removed from the whitelist";
 
-			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json"))));
+			incorrectConnectionsMW = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json"))));
 
 			string whitelistNodeFile = Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json"));
 			whitelistNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(whitelistNodeFile));
@@ -107,12 +157,12 @@ namespace OSMConnectivity.Controllers
 			{
 				if (node.Id.Equals(id))
 				{
-					incorrectConnectionNodes.Add(node);
+					incorrectConnectionsMW.Add(node);
 					whitelistNodes.Remove(node);
 					break;
 				}
 			}
-			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/disconnections_NZ.json")), JsonConvert.SerializeObject(incorrectConnectionNodes));
+			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json")), JsonConvert.SerializeObject(incorrectConnectionsMW));
 			System.IO.File.WriteAllText(Server.MapPath(Url.Content("~/Content/json_files/WhitelistNodes.json")), JsonConvert.SerializeObject(whitelistNodes));
 
 			return returnMsg;
@@ -133,11 +183,44 @@ namespace OSMConnectivity.Controllers
 			return Json(json, JsonRequestBehavior.AllowGet);
 		}
 
-		public JsonResult getIncorrectConnectionsData()
+		public JsonResult getIncorrectConnectionsDataMW()
 		{
-			incorrectConnectionNodes = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/NZ_IncorrectConnections.json"))));
-			var json = JsonConvert.SerializeObject(incorrectConnectionNodes);
+			incorrectConnectionsMW = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_MW.json"))));
+			var json = JsonConvert.SerializeObject(incorrectConnectionsMW);
 			return Json(json, JsonRequestBehavior.AllowGet);
 		}
+
+		public JsonResult getIncorrectConnectionsDataPR()
+		{
+			incorrectConnectionsPR = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_PR_trimmed.json"))));
+
+			var json = ser.Serialize(incorrectConnectionsPR);
+
+			return Json(json, JsonRequestBehavior.AllowGet);
+		}
+
+		//public JsonResult getIncorrectConnectionsDataSEC()
+		//{
+		//	incorrectConnectionsSEC = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_SEC_trimmed.json"))));
+
+		//	var json = JsonConvert.SerializeObject(incorrectConnectionsSEC);
+		//	return Json(json, JsonRequestBehavior.AllowGet);
+		//}
+
+		//public JsonResult getIncorrectConnectionsDataTER()
+		//{
+		//	incorrectConnectionsTER = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_TER_trimmed.json"))));
+
+		//	var json = JsonConvert.SerializeObject(incorrectConnectionsTER);
+		//	return Json(json, JsonRequestBehavior.AllowGet);
+		//}
+
+		//public JsonResult getIncorrectConnectionsDataTR()
+		//{
+		//	incorrectConnectionsTR = ser.Deserialize<List<IncorrectConnectionNode>>(System.IO.File.ReadAllText(Server.MapPath(Url.Content("~/Content/json_files/NZ/IncorrectConnections/NZ_IncorrectConnections_TR_trimmed.json"))));
+
+		//	var json = JsonConvert.SerializeObject(incorrectConnectionsTR);
+		//	return Json(json, JsonRequestBehavior.AllowGet);
+		//}
 	}
 }
